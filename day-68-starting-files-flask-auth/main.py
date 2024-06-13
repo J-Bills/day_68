@@ -50,7 +50,7 @@ def register():
         form_data = request.form.to_dict()
         hash_password = generate_password_hash(form_data['password'], method='pbkdf2:sha256', salt_length=8)
         print(check_password_hash(hash_password,form_data.get('password')))
-        user = db.session.execute(db.select(User).where(User.email == form_data.get('password'))).scalar()
+        user = db.session.execute(db.select(User).where(User.email == form_data.get('email'))).scalar()
         if user:
             flash("You've already signed up with that email, log in instead!")
             return redirect(url_for('login'))
