@@ -50,6 +50,10 @@ def register():
         form_data = request.form.to_dict()
         hash_password = generate_password_hash(form_data['password'], method='pbkdf2:sha256', salt_length=8)
         print(check_password_hash(hash_password,form_data.get('password')))
+        user = User.query.where(User.email == form_data['email'])
+        if user:
+            flash("You've already signed up with that email, log in instead!")
+            return redirect(url_for('login'))
         form_data['password'] = hash_password
         new_user = User(**form_data)
         db.session.add(new_user)
@@ -65,8 +69,9 @@ def login():
         email = request.form.get('emails')
         password = request.form.get('password')
         user = User.query.where(User.email == email)
-        if user is None:
-           return redirect(url_for('login'))
+        if not user:
+            flash('That user doesn\'t exist.')
+            return redirect(url_for('login'))
         if check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('secrets'))
